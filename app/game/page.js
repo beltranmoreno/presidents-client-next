@@ -25,6 +25,9 @@ const Game = () => {
   const [finalStandings, setFinalStandings] = useState([]);
   const [setSize, setSetSize] = useState(0);
   const [playerSkipped, setPlayerSkipped] = useState("");
+  const [playerName, setPlayerName] = useState("");
+  const [gameCode, setGameCode] = useState("");
+
   const router = useRouter();
 
   useEffect(() => {
