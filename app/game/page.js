@@ -209,7 +209,7 @@ const Game = () => {
   };
 
   const handleCopyGameCode = () => {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
+    if (typeof window !== "undefined" && navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(gameCode).then(
         () => {
           setCopied(true);
