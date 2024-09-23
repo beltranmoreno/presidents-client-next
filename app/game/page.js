@@ -239,8 +239,11 @@ const Game = () => {
   };
 
   function generateShareableLink(gameCode) {
-    const baseURL = window.location.origin; // Gets the base URL of your current domain
-    return `${baseURL}/join?gameCode=${encodeURIComponent(gameCode)}`;
+    if (typeof window !== "undefined") {
+      const baseURL = window.location.origin; // This code runs only in the browser
+      return `${baseURL}/join?gameCode=${encodeURIComponent(gameCode)}`;
+    }
+    return ""; // Return an empty string or handle the server-side case appropriately
   }
 
   if (!gameState) {

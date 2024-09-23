@@ -4,7 +4,8 @@ const ShareGame = ({ link = "Link" }) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopyGameCode = () => {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
+    // Check if the code is running in the browser environment
+    if (typeof window !== "undefined" && navigator.clipboard) {
       navigator.clipboard.writeText(link).then(
         () => {
           setCopied(true);
@@ -15,21 +16,23 @@ const ShareGame = ({ link = "Link" }) => {
         }
       );
     } else {
-      // Fallback for older browsers
-      const textarea = document.createElement("textarea");
-      textarea.value = gameCode;
-      textarea.style.position = "fixed"; // Prevent scrolling to bottom
-      document.body.appendChild(textarea);
-      textarea.focus();
-      textarea.select();
-      try {
-        document.execCommand("copy");
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      } catch (err) {
-        console.error("Fallback: Oops, unable to copy", err);
+      // Fallback for older browsers or if clipboard API is not available
+      if (typeof document !== "undefined") {
+        const textarea = document.createElement("textarea");
+        textarea.value = link; // Use the correct link variable here
+        textarea.style.position = "fixed"; // Prevent scrolling to the bottom
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        try {
+          document.execCommand("copy");
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        } catch (err) {
+          console.error("Fallback: Oops, unable to copy", err);
+        }
+        document.body.removeChild(textarea);
       }
-      document.body.removeChild(textarea);
     }
   };
 
