@@ -144,7 +144,7 @@ const Game = () => {
       socket.off("gameEnd");
       socket.off("error");
     };
-  }, [setSize, router]);
+  }, [setSize, router, playerName, gameCode]);
 
   // Function to handle card selection
   const toggleCardSelection = (index) => {

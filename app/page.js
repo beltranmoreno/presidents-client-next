@@ -7,7 +7,7 @@ const HomePage = () => (
   <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
     <h1 className="text-4xl font-bold mb-8">Presidents</h1>
     <div className="my-4">
-      <Image src="./Presidents.svg" alt="Presidents Logo" width={20} height={20}></Image>
+      <Image src="./Presidents.svg" alt="Presidents Logo" width={auto} height={auto}></Image>
     </div>
     <p className="text-lg mb-8">How about it</p>
     <div className="space-x-4">
