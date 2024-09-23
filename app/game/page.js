@@ -32,7 +32,12 @@ const Game = () => {
   const [gameCode, setGameCode] = useState(undefined);
 
   const router = useRouter();
-  quantum.register();
+  // Register quantum on client side only
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      quantum.register();
+    }
+  }, []);
 
   useEffect(() => {
     // Check if the code is running in the browser before accessing sessionStorage
