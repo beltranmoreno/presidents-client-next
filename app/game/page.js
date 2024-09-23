@@ -1,9 +1,9 @@
 // src/components/Game.js
-'use client';
+"use client";
 
 import React, { useEffect, useState } from "react";
-import socket from '@/utils/socket'; // Adjust the path based on your project structure
-import { useRouter } from 'next/navigation'; 
+import socket from "@/utils/socket"; // Adjust the path based on your project structure
+import { useRouter } from "next/navigation";
 import Card from "@/components/cards/Card";
 import Player from "@/components/players/Player";
 import CopyButton from "@/components/buttons/CopyButton";
@@ -19,17 +19,17 @@ const Game = () => {
   const [connectionError, setConnectionError] = useState({
     error: false,
     message: "Connected",
-    conStatus: "connected"
+    conStatus: "connected",
   });
   const [message, setMessage] = useState("");
   const [finalStandings, setFinalStandings] = useState([]);
   const [setSize, setSetSize] = useState(0);
   const [playerSkipped, setPlayerSkipped] = useState("");
   const router = useRouter();
-  
+
   useEffect(() => {
     // Check if the code is running in the browser before accessing sessionStorage
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const storedPlayerName = sessionStorage.getItem("playerName");
       const storedGameCode = sessionStorage.getItem("gameCode");
 
@@ -72,8 +72,8 @@ const Game = () => {
       setConnectionError({
         error: false,
         message: "Connected",
-        conStatus: "connected"
-      })
+        conStatus: "connected",
+      });
     });
 
     // Listen for playerSkipped event
@@ -90,12 +90,20 @@ const Game = () => {
     });
 
     socket.on("connect_error", (err) => {
-      setConnectionError({ error: true, message: err.message, conStatus: "Error" });
+      setConnectionError({
+        error: true,
+        message: err.message,
+        conStatus: "Error",
+      });
       console.error("Connection error:", err.message);
     });
 
     socket.on("disconnect", () => {
-      setConnectionError({ error: true, message: "Disconnected", conStatus: "Error" });
+      setConnectionError({
+        error: true,
+        message: "Disconnected",
+        conStatus: "Error",
+      });
       console.warn("Disconnected from server");
     });
 
@@ -133,7 +141,7 @@ const Game = () => {
       socket.off("gameEnd");
       socket.off("error");
     };
-  }, [playerName, gameCode, setSize, router]);
+  }, [setSize, router]);
 
   // Function to handle card selection
   const toggleCardSelection = (index) => {
@@ -224,8 +232,10 @@ const Game = () => {
   if (!gameState.gameStarted) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 space-y-4">
-         <h2 className="text-2xl font-semibold text-center mb-6">Waiting for players to join...</h2>
-         <CopyButton
+        <h2 className="text-2xl font-semibold text-center mb-6">
+          Waiting for players to join...
+        </h2>
+        <CopyButton
           copied={copied}
           onClick={handleCopyGameCode}
           text={gameCode}
@@ -236,7 +246,11 @@ const Game = () => {
         </p>
         <ul className="mt-4">
           {gameState.players.map((player, idx) => (
-            <Player key={idx} player={player} iAmPlayer={playerName === player.name}></Player>
+            <Player
+              key={idx}
+              player={player}
+              iAmPlayer={playerName === player.name}
+            ></Player>
           ))}
         </ul>
       </div>
@@ -261,10 +275,13 @@ const Game = () => {
     onClick: handleCopyGameCode,
     text: gameCode,
   };
-  
+
   return (
     <>
-      <NavBar copyButton={copyButton} connectionStatus={connectionError}></NavBar>
+      <NavBar
+        copyButton={copyButton}
+        connectionStatus={connectionError}
+      ></NavBar>
       <div className="flex items-start justify-center min-h-screen bg-gray-100">
         <div
           id="content"
@@ -359,9 +376,7 @@ const Game = () => {
               <p>{playError.message}</p>
             </div>
           ) : (
-            <div className="mb-4 sm:h-12  ">
-              
-            </div>
+            <div className="mb-4 sm:h-12  "></div>
           )}
 
           {/* Action buttons */}
