@@ -50,7 +50,7 @@ const CreateGame = () => {
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="mt-1 p-2 w-full border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-none"
+            className="mt-1 p-2 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-none"
           />
         </div>
         <div className="mb-6">
@@ -61,7 +61,7 @@ const CreateGame = () => {
             max="8"
             value={numPlayers}
             onChange={(e) => setNumPlayers(parseInt(e.target.value, 10))}
-            className="mt-1 p-2 w-full border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="mt-1 p-2 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
         {errorMessage.error && errorMessage.message && (
@@ -71,7 +71,7 @@ const CreateGame = () => {
         )}
         <button
           type="submit"
-          className="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+          className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
         >
           Create Game
         </button>

@@ -11,7 +11,7 @@ const NavBar = ({copyButton, connectionStatus}) => {
         className="max-w-4xl flex justify-between items-center my-8 mx-2 w-full"
       >
         <div className="my-4">
-          <Image src="./Presidents.svg" alt="Presidents Logo"></Image>
+          <Image src="./Presidents.svg" alt="Presidents Logo" width={150} height={50}></Image>
         </div>
         <div className="flex justify-center space-x-4 items-center">
           <ServerStatus connectionStatus={connectionStatus}></ServerStatus>

@@ -10,6 +10,9 @@ import CopyButton from "@/components/buttons/CopyButton";
 import GameOverScreen from "@/components/GameOverScreen";
 import NavBar from "@/components/nav/NavBar";
 import SetSize from "@/components/cards/SetSize";
+import { quantum } from "ldrs";
+import Link from "next/link";
+import ShareGame from "@/components/share/ShareGame";
 
 const Game = () => {
   const [gameState, setGameState] = useState(null);
@@ -25,10 +28,11 @@ const Game = () => {
   const [finalStandings, setFinalStandings] = useState([]);
   const [setSize, setSetSize] = useState(0);
   const [playerSkipped, setPlayerSkipped] = useState("");
-  const [playerName, setPlayerName] = useState("");
-  const [gameCode, setGameCode] = useState("");
+  const [playerName, setPlayerName] = useState(undefined);
+  const [gameCode, setGameCode] = useState(undefined);
 
   const router = useRouter();
+  quantum.register();
 
   useEffect(() => {
     // Check if the code is running in the browser before accessing sessionStorage
@@ -38,16 +42,27 @@ const Game = () => {
 
       setPlayerName(storedPlayerName);
       setGameCode(storedGameCode);
-
-      if (!storedPlayerName || !storedGameCode) {
-        // Redirect to home if no playerName or gameCode
-        router.push("/");
-        return;
-      }
     }
-  }, [router]);
+  }, []);
 
   useEffect(() => {
+    if (playerName === undefined || gameCode === undefined) {
+      // State variables are not yet set; wait for them to be set
+      return;
+    }
+
+    if (!playerName || !gameCode) {
+      // After state variables are set, check if they are valid
+      router.push("/");
+    }
+  }, [playerName, gameCode, router]);
+
+  useEffect(() => {
+    if (playerName === undefined || gameCode === undefined) {
+      // Wait until both state variables are set
+      return;
+    }
+
     if (!playerName || !gameCode) {
       // Redirect to home if no playerName or gameCode
       router.push("/");
@@ -223,6 +238,11 @@ const Game = () => {
     }
   };
 
+  function generateShareableLink(gameCode) {
+    const baseURL = window.location.origin; // Gets the base URL of your current domain
+    return `${baseURL}/join?gameCode=${encodeURIComponent(gameCode)}`;
+  }
+
   if (!gameState) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
@@ -234,28 +254,43 @@ const Game = () => {
   // If the game hasn't started yet
   if (!gameState.gameStarted) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 space-y-4">
-        <h2 className="text-2xl font-semibold text-center mb-6">
-          Waiting for players to join...
-        </h2>
-        <CopyButton
-          copied={copied}
-          onClick={handleCopyGameCode}
-          text={gameCode}
-        ></CopyButton>
-        <p>
-          Players Connected: {gameState.numPlayersConnected} /{" "}
-          {gameState.numPlayersExpected}
-        </p>
-        <ul className="mt-4">
-          {gameState.players.map((player, idx) => (
-            <Player
-              key={idx}
-              player={player}
-              iAmPlayer={playerName === player.name}
-            ></Player>
-          ))}
-        </ul>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 space-y-4 px-6">
+        <div
+          id="content"
+          className="max-w-4xl w-full flex flex-col justify-start items-center my-2 mx-2"
+        >
+          <div className="p-6 mb-2">
+            <l-quantum size="45" speed="1.75" color="blue"></l-quantum>
+          </div>
+
+          <h2 className="text-2xl font-semibold text-center mb-6">
+            Waiting for players to join...
+          </h2>
+          <div>
+            <CopyButton
+              copied={copied}
+              onClick={handleCopyGameCode}
+              text={gameCode}
+            ></CopyButton>
+          </div>
+          <div className="w-full bg-gray-300 h-0.5 my-4">
+
+          </div>
+          <p>
+            Players Connected: {gameState.numPlayersConnected} /{" "}
+            {gameState.numPlayersExpected}
+          </p>
+          <div className="mt-4 grid grid-cols-2 w-full gap-4">
+            {gameState.players.map((player, idx) => (
+              <Player
+                key={idx}
+                player={player}
+                iAmPlayer={playerName === player.name}
+              ></Player>
+            ))}
+          </div>
+          <ShareGame link={generateShareableLink(gameCode)}></ShareGame>
+        </div>
       </div>
     );
   }
@@ -291,8 +326,8 @@ const Game = () => {
           className="max-w-4xl w-full flex flex-col justify-start items-center my-2 mx-2"
         >
           {/* Display other players */}
-          <div className="mb-4 w-full ">
-            <div className="flex flex-wrap sm:flex sm:flex-nowrap">
+          <div className="mb-4 w-full">
+            <div className="grid grid-cols-2 sm:flex sm:flex-nowrap space-x-4">
               {gameState.players.map((p, idx) => (
                 <Player
                   key={idx}
