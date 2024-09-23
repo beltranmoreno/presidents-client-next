@@ -25,9 +25,24 @@ const Game = () => {
   const [finalStandings, setFinalStandings] = useState([]);
   const [setSize, setSetSize] = useState(0);
   const [playerSkipped, setPlayerSkipped] = useState("");
-  const playerName = sessionStorage.getItem("playerName");
-  const gameCode = sessionStorage.getItem("gameCode");
   const router = useRouter();
+  
+  useEffect(() => {
+    // Check if the code is running in the browser before accessing sessionStorage
+    if (typeof window !== 'undefined') {
+      const storedPlayerName = sessionStorage.getItem("playerName");
+      const storedGameCode = sessionStorage.getItem("gameCode");
+
+      setPlayerName(storedPlayerName);
+      setGameCode(storedGameCode);
+
+      if (!storedPlayerName || !storedGameCode) {
+        // Redirect to home if no playerName or gameCode
+        router.push("/");
+        return;
+      }
+    }
+  }, [router]);
 
   useEffect(() => {
     if (!playerName || !gameCode) {

@@ -1,8 +1,8 @@
 // src/components/CreateGame.js
-'use client';
+"use client";
 import React, { useState } from "react";
-import { useRouter } from 'next/navigation'; 
-import socket from '@/utils/socket'; // Adjust the path based on your project structure
+import { useRouter } from "next/navigation";
+import socket from "@/utils/socket"; // Adjust the path based on your project structure
 
 const CreateGame = () => {
   const [name, setName] = useState("");
@@ -15,25 +15,27 @@ const CreateGame = () => {
   const router = useRouter();
 
   const handleCreateGame = (e) => {
-    e.preventDefault();
+    if (typeof window !== "undefined") {
+      e.preventDefault();
 
-    if (!socket.connected) {
-      socket.connect();
-    }
-
-    // Emit 'createGame' event to the server
-    socket.emit("createGame", { name, numPlayers }, (response) => {
-      if (response.error) {
-        setErrorMessage({ error: true, message: response.error });
-      } else {
-        setGameCode(response.gameCode);
-        // Store playerName and gameCode in localStorage or context
-        sessionStorage.setItem("playerName", name);
-        sessionStorage.setItem("gameCode", response.gameCode);
-        sessionStorage.setItem("playerId", response.playerId);
-        router.push("/game");
+      if (!socket.connected) {
+        socket.connect();
       }
-    });
+
+      // Emit 'createGame' event to the server
+      socket.emit("createGame", { name, numPlayers }, (response) => {
+        if (response.error) {
+          setErrorMessage({ error: true, message: response.error });
+        } else {
+          setGameCode(response.gameCode);
+          // Store playerName and gameCode in localStorage or context
+          sessionStorage.setItem("playerName", name);
+          sessionStorage.setItem("gameCode", response.gameCode);
+          sessionStorage.setItem("playerId", response.playerId);
+          router.push("/game");
+        }
+      });
+    }
   };
 
   return (

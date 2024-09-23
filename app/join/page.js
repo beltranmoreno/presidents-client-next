@@ -17,23 +17,28 @@ const JoinGame = () => {
   const handleJoinGame = (e) => {
     e.preventDefault();
 
-    if (!socket.connected) {
-      socket.connect();
-    }
-    // Emit 'joinGame' event to the server
-    socket.emit("joinGame", { name, gameCode }, (response) => {
-      console.log("response", response);
-      if (response.error) {
-        setErrorMessage({ error: true, message: response.error });
-      } else {
-        // Store playerName and gameCode in localStorage or context
-        sessionStorage.setItem("playerName", name);
-        sessionStorage.setItem("gameCode", gameCode);
-        sessionStorage.setItem("playerId", response.playerId);
-        router.push("/game");
+    // Check if the code is running in the browser before using sessionStorage
+    if (typeof window !== 'undefined') {
+      if (!socket.connected) {
+        socket.connect();
       }
-    });
+
+      // Emit 'joinGame' event to the server
+      socket.emit("joinGame", { name, gameCode }, (response) => {
+        console.log("response", response);
+        if (response.error) {
+          setErrorMessage({ error: true, message: response.error });
+        } else {
+          // Store playerName and gameCode in sessionStorage
+          sessionStorage.setItem("playerName", name);
+          sessionStorage.setItem("gameCode", gameCode);
+          sessionStorage.setItem("playerId", response.playerId);
+          router.push("/game");
+        }
+      });
+    }
   };
+
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
