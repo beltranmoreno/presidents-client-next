@@ -8,7 +8,7 @@ const NavBar = ({copyButton, connectionStatus}) => {
     <div className="flex flex-col items-center justify-center bg-gray-100">
       <div
         id="content"
-        className="max-w-4xl flex justify-between items-center my-8 mx-2 w-full"
+        className="max-w-4xl flex justify-between items-center my-8 mx-2 w-full px-4"
       >
         <div className="my-4">
           <Image src="./Presidents.svg" alt="Presidents Logo" width={150} height={50}></Image>

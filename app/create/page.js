@@ -12,6 +12,7 @@ const CreateGame = () => {
     error: false,
     message: "Oh no! We have encountered an error.",
   });
+  const [numBots, setNumBots] = useState(0);
   const router = useRouter();
 
   const handleCreateGame = (e) => {
@@ -23,7 +24,7 @@ const CreateGame = () => {
       }
 
       // Emit 'createGame' event to the server
-      socket.emit("createGame", { name, numPlayers }, (response) => {
+      socket.emit("createGame", { name, numPlayers, numBots }, (response) => {
         if (response.error) {
           setErrorMessage({ error: true, message: response.error });
         } else {
@@ -61,6 +62,17 @@ const CreateGame = () => {
             max="8"
             value={numPlayers}
             onChange={(e) => setNumPlayers(parseInt(e.target.value, 10))}
+            className="mt-1 p-2 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div className="mb-6">
+          <label className="block text-gray-700">Number of Bots:</label>
+          <input
+            type="number"
+            min="0"
+            max={numPlayers - 1} // Prevent too many bots
+            value={numBots}
+            onChange={(e) => setNumBots(parseInt(e.target.value, 10))}
             className="mt-1 p-2 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>

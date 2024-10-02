@@ -25,7 +25,7 @@ const Player = ({
 
   return (
     <div
-      className={`relative flex w-full min-w-24 justify-between items-start border px-4 py-4 rounded-lg bg-white space-x-4 ${
+      className={`relative flex w-full min-w-20 justify-between items-start border px-4 py-4 rounded-lg bg-white space-x-4 ${
         currentPlayer
           ? "bg-blue-200 animate-pulse outline-blue-500 border-none outline outline-2 transition ease-in-out"
           : "border-gray-300"

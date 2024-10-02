@@ -13,6 +13,7 @@ import SetSize from "@/components/cards/SetSize";
 import { quantum } from "ldrs";
 import Link from "next/link";
 import ShareGame from "@/components/share/ShareGame";
+import TurnTimer from "@/components/timer/TurnTimer";
 
 const Game = () => {
   const [gameState, setGameState] = useState(null);
@@ -30,6 +31,7 @@ const Game = () => {
   const [playerSkipped, setPlayerSkipped] = useState("");
   const [playerName, setPlayerName] = useState(undefined);
   const [gameCode, setGameCode] = useState(undefined);
+  const [playerId, setPlayerId] = useState(undefined);
 
   const router = useRouter();
   // Register quantum on client side only
@@ -40,13 +42,41 @@ const Game = () => {
   }, []);
 
   useEffect(() => {
-    // Check if the code is running in the browser before accessing sessionStorage
+    // Retrieve player data from sessionStorage
     if (typeof window !== "undefined") {
       const storedPlayerName = sessionStorage.getItem("playerName");
       const storedGameCode = sessionStorage.getItem("gameCode");
+      const storedPlayerId = sessionStorage.getItem("playerId");
 
       setPlayerName(storedPlayerName);
       setGameCode(storedGameCode);
+      setPlayerId(storedPlayerId);
+
+      // Attempt to reconnect if player data exists
+      //   if (storedPlayerName && storedGameCode && storedPlayerId) {
+      //     socket.emit(
+      //       "reconnectPlayer",
+      //       { playerId: storedPlayerId, gameCode: storedGameCode },
+      //       (response) => {
+      //         if (response.error) {
+      //           setConnectionError({
+      //             error: true,
+      //             message: response.error,
+      //             conStatus: "disconnected",
+      //           });
+      //           console.error("Reconnection error:", response.error);
+      //         } else {
+      //           console.log("Reconnected successfully");
+      //           setConnectionError({
+      //             error: false,
+      //             message: "Connected",
+      //             conStatus: "connected",
+      //           });
+      //           // Proceed to set the game state or handle post-reconnection setup here
+      //         }
+      //       }
+      //     );
+      //   }
     }
   }, []);
 
@@ -109,7 +139,8 @@ const Game = () => {
     });
 
     socket.on("error", (message) => {
-      alert(`Error: ${message}`);
+      console.log("There was an error");
+      console.error(`Error: ${message}`);
     });
 
     socket.on("connect_error", (err) => {
@@ -214,7 +245,11 @@ const Game = () => {
   };
 
   const handleCopyGameCode = () => {
-    if (typeof window !== "undefined" && navigator.clipboard && navigator.clipboard.writeText) {
+    if (
+      typeof window !== "undefined" &&
+      navigator.clipboard &&
+      navigator.clipboard.writeText
+    ) {
       navigator.clipboard.writeText(gameCode).then(
         () => {
           setCopied(true);
@@ -281,9 +316,7 @@ const Game = () => {
               text={gameCode}
             ></CopyButton>
           </div>
-          <div className="w-full bg-gray-300 h-0.5 my-4">
-
-          </div>
+          <div className="w-full bg-gray-300 h-0.5 my-4"></div>
           <p>
             Players Connected: {gameState.numPlayersConnected} /{" "}
             {gameState.numPlayersExpected}
@@ -335,13 +368,13 @@ const Game = () => {
         >
           {/* Display other players */}
           <div className="mb-4 w-full">
-            <div className="grid grid-cols-2 sm:flex sm:flex-nowrap space-x-4">
+            <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-nowrap sm:space-x-4">
               {gameState.players.map((p, idx) => (
                 <Player
                   key={idx}
                   player={p}
-                  currentPlayer={gameState.currentPlayer === p.name}
-                  iAmPlayer={playerName === p.name}
+                  currentPlayer={gameState.currentPlayer.id === p.id}
+                  iAmPlayer={playerId === p.id}
                   playerSkipped={playerSkipped === p.name}
                   gameStarted={gameState.gameStarted}
                 ></Player>
@@ -378,25 +411,37 @@ const Game = () => {
                 </div>
               )}
             </div>
-            <div className="my-8 flex justify-center">
+            <div className="my-8 flex justify-center space-x-2">
               <SetSize setSize={setSize}></SetSize>
+
+              <TurnTimer
+                onTimeout={passTurn}
+                isPlayerTurn={gameState.currentPlayer.id === playerId}
+                gameState={gameState}
+              />
             </div>
           </div>
 
           {/* Display player's hand */}
-          <div className="my-4 flex justify-start w-full">
+          <div className="my-4 flex justify-center w-full md:justify-start ">
             {player.hand && player.hand.length > 0 ? (
               <div>
                 {/* <h3 className="text-lg font-semibold px-">Your Hand:</h3> */}
-                <div className="flex flex-wrap -space-x-4">
+                <div className="flex flex-wrap md:-space-x-10 justify-center md:justify-start">
                   {player.hand.map((card, index) => (
-                    <Card
+                    <div
                       key={index}
-                      rank={card.rank}
-                      suit={card.suit}
-                      selected={selectedCards.includes(index)}
-                      onClick={() => toggleCardSelection(index)}
-                    />
+                      className={`relative ${
+                        index % 6 === 0 ? "" : "-ml-8"
+                      } md:m-0`} // Apply negative margin only when needed
+                    >
+                      <Card
+                        rank={card.rank}
+                        suit={card.suit}
+                        selected={selectedCards.includes(index)}
+                        onClick={() => toggleCardSelection(index)}
+                      />
+                    </div>
                   ))}
                 </div>
               </div>
@@ -426,7 +471,7 @@ const Game = () => {
           )}
 
           {/* Action buttons */}
-          {gameState.currentPlayer === playerName ? (
+          {gameState.currentPlayer.id === playerId ? (
             <div className="flex space-x-4 mb-4">
               <button
                 onClick={playSelectedCards}
@@ -448,7 +493,9 @@ const Game = () => {
           ) : (
             <p className="mb-4 text-lg px-6 py-3">
               Waiting for{" "}
-              <span className="font-semibold">{gameState.currentPlayer}</span>{" "}
+              <span className="font-semibold">
+                {gameState.currentPlayer.name}
+              </span>{" "}
               to make a move.
             </p>
           )}
