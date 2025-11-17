@@ -121,7 +121,7 @@ const Game = () => {
     socket.on("gameState", (state) => {
       console.log("state", state);
       setGameState(state);
-      setSetSize(state.lastPlayedCards.length);
+      setSetSize(state?.lastPlayedCards?.length || 0);
       setConnectionError({
         error: false,
         message: "Connected",
@@ -133,6 +133,14 @@ const Game = () => {
     socket.on("playerSkipped", (data) => {
       setMessage(data.message);
       setPlayerSkipped(data.skippedPlayer);
+
+      // Clear the message after a few seconds
+      setTimeout(() => setMessage(""), 5000);
+    });
+
+    // Listen for trickReset event
+    socket.on("trickReset", (data) => {
+      setMessage(data.message);
 
       // Clear the message after a few seconds
       setTimeout(() => setMessage(""), 5000);
@@ -190,6 +198,7 @@ const Game = () => {
     return () => {
       socket.off("gameState");
       socket.off("playerSkipped");
+      socket.off("trickReset");
       socket.off("playerFinished");
       socket.off("gameRestarted");
       socket.off("gameEnd");
@@ -322,7 +331,7 @@ const Game = () => {
             {gameState.numPlayersExpected}
           </p>
           <div className="mt-4 grid grid-cols-2 w-full gap-4">
-            {gameState.players.map((player, idx) => (
+            {gameState?.players?.map((player, idx) => (
               <Player
                 key={idx}
                 player={player}
@@ -348,7 +357,7 @@ const Game = () => {
     );
   }
 
-  const player = gameState.players.find((p) => p.name === playerName);
+  const player = gameState?.players?.find((p) => p.name === playerName);
   const copyButton = {
     copied: copied,
     onClick: handleCopyGameCode,
@@ -369,14 +378,14 @@ const Game = () => {
           {/* Display other players */}
           <div className="mb-4 w-full">
             <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-nowrap sm:space-x-4">
-              {gameState.players.map((p, idx) => (
+              {gameState?.players?.map((p, idx) => (
                 <Player
                   key={idx}
                   player={p}
-                  currentPlayer={gameState.currentPlayer.id === p.id}
+                  currentPlayer={gameState?.currentPlayer?.id === p.id}
                   iAmPlayer={playerId === p.id}
                   playerSkipped={playerSkipped === p.name}
-                  gameStarted={gameState.gameStarted}
+                  gameStarted={gameState?.gameStarted}
                 ></Player>
               ))}
             </div>
@@ -392,10 +401,10 @@ const Game = () => {
             {/* Display the last played cards */}
             <div className="my-8 flex justify-center">
               {/* <h3 className="text-lg font-semibold">Last Played Cards:</h3> */}
-              {gameState.lastPlayedCards &&
-              gameState.lastPlayedCards.length > 0 ? (
+              {gameState?.lastPlayedCards &&
+              gameState?.lastPlayedCards.length > 0 ? (
                 <div className="flex flex-wrap">
-                  {gameState.lastPlayedCards.map((card, idx) => (
+                  {gameState?.lastPlayedCards.map((card, idx) => (
                     <Card
                       key={idx}
                       rank={card.rank}
@@ -416,7 +425,7 @@ const Game = () => {
 
               <TurnTimer
                 onTimeout={passTurn}
-                isPlayerTurn={gameState.currentPlayer.id === playerId}
+                isPlayerTurn={gameState?.currentPlayer?.id === playerId}
                 gameState={gameState}
               />
             </div>
@@ -424,11 +433,11 @@ const Game = () => {
 
           {/* Display player's hand */}
           <div className="my-4 flex justify-center w-full md:justify-start ">
-            {player.hand && player.hand.length > 0 ? (
+            {player?.hand && player?.hand.length > 0 ? (
               <div>
                 {/* <h3 className="text-lg font-semibold px-">Your Hand:</h3> */}
                 <div className="flex flex-wrap md:-space-x-10 justify-center md:justify-start">
-                  {player.hand.map((card, index) => (
+                  {player?.hand?.map((card, index) => (
                     <div
                       key={index}
                       className={`relative ${
@@ -471,7 +480,7 @@ const Game = () => {
           )}
 
           {/* Action buttons */}
-          {gameState.currentPlayer.id === playerId ? (
+          {gameState?.currentPlayer?.id === playerId ? (
             <div className="flex space-x-4 mb-4">
               <button
                 onClick={playSelectedCards}
@@ -494,7 +503,7 @@ const Game = () => {
             <p className="mb-4 text-lg px-6 py-3">
               Waiting for{" "}
               <span className="font-semibold">
-                {gameState.currentPlayer.name}
+                {gameState?.currentPlayer?.name}
               </span>{" "}
               to make a move.
             </p>
